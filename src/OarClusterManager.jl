@@ -5,7 +5,7 @@ using Distributed, DelimitedFiles
 import Distributed: launch, manage, kill
 export launch, manage, kill
 
-export OARManager, addprocs_oar
+export OARManager, addprocs_oar, get_remotehosts
 
 struct OARManager <: ClusterManager
     machines::Dict
@@ -82,7 +82,7 @@ function launch_on_machine(manager::OARManager, machine::String, params::Dict, l
     # exeflags = `$exeflags --worker `
 
     # Second cookie passing option
-    exeflags = `$exeflags --worker = $(cluster_cookie())`
+    exeflags = `$exeflags --worker=$(cluster_cookie())`
 
     host = machine
     # oarshflags = `$(get(params, :oarshflags, \`\`))`
