@@ -67,8 +67,11 @@ function launch_on_machine(manager::OARManager, machine::String, params::Dict, l
     exename = params[:exename]
     exeflags = params[:exeflags]
 
+    # First cookie passing option
+    # exeflags = `$exeflags --worker `
 
-    exeflags = `$exeflags --worker=$(cluster_cookie())`
+    # Second cookie passing option
+    exeflags = `$exeflags --worker = $(cluster_cookie())`
 
     host = machine
     # oarshflags = `$(get(params, :oarshflags, \`\`))`
@@ -96,10 +99,10 @@ function launch_on_machine(manager::OARManager, machine::String, params::Dict, l
     # the initial julia process (Ctrl-C and teardown methods are handled through messages)
     # for the launched processes.
     println("Launching full command:\n$cmd\n")
-    prcs = detach(cmd)
-    println("------------------------")
-    io = open(prcs, "r+")
-    # print(io, cluster_cookie())
+    io = open(detach(cmd), "r+")
+    
+    ## Second cookie passing option.
+    # write_cookie(io) = print(io.in, string(cluster_cookie(), "\n"))
 
     wconfig = WorkerConfig()
     wconfig.io = io.out
