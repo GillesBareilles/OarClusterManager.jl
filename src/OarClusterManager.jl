@@ -1,6 +1,6 @@
 module OarClusterManager
 
-using Distributed
+using Distributed, DelimitedFiles
 
 import Distributed: launch, manage, kill
 export launch, manage, kill
@@ -20,7 +20,18 @@ struct OARManager <: ClusterManager
     end
 end
 
+"""
+    get_remotehosts()
 
+Return an array of all OAR reserved remote nodes, with multiplicity of number of available cores.
+"""
+function get_remotehosts()
+    haskey(ENV, "OAR_NODEFILE")
+
+    allhosts = vec(readdlm(ENV["OAR_NODEFILE"], String))
+
+    return filter(x->x!==gethostname(), allhosts)
+end
 
 function addprocs_oar(machines::AbstractVector; kwargs...)
     addprocs(OARManager(machines); kwargs...)
