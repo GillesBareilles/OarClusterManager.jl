@@ -71,7 +71,7 @@ function launch_on_machine(manager::OARManager, machine::String, params::Dict, l
     exeflags = `$exeflags --worker`
 
     host = machine
-    oarshflags = `$(get(params, :oarshflags, ""))`
+    oarshflags = `$(get(params, :oarshflags, ''))`
 
     # Build up the ssh command
 
@@ -99,7 +99,7 @@ function launch_on_machine(manager::OARManager, machine::String, params::Dict, l
     prcs = detach(cmd)
     println("------------------------")
     @show typeof(prcs), prcs
-    @show getpid(prcs)
+    # @show getpid(prcs)
     println("------------------------")
     io = open(prcs, "r+")
     print(io, cluster_cookie())
