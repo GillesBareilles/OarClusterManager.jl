@@ -62,7 +62,7 @@ function launch(manager::OARManager, params::Dict, launched::Array, launch_ntfy:
     end
     
     notify(launch_ntfy)
-    println("Done launch().\n")
+    # println("Done launch().\n")
     return
 end
 
