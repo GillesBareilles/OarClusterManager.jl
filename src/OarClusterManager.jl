@@ -2,7 +2,10 @@ module OarClusterManager
 
 using Distributed
 
-export OARManager
+import Distributed: launch, manage, kill
+export launch, manage, kill
+
+export OARManager, addprocs_oar
 
 struct OARManager <: ClusterManager
     machines::Dict
