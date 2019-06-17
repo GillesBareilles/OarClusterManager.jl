@@ -1,0 +1,4 @@
+name = "OarClusterManager"
+uuid = "207ec4d0-90e1-11e9-024b-2589a7dd4862"
+authors = ["Gilles <gilles.bareilles@gmail.com>"]
+version = "0.1.0"
