@@ -97,8 +97,10 @@ function launch_on_machine(manager::OARManager, machine::String, params::Dict, l
     # for the launched processes.
     println("Launching full command:\n$cmd\n")
     prcs = detach(cmd)
+    println("------------------------")
     @show typeof(prcs), prcs
     @show getpid(prcs)
+    println("------------------------")
     io = open(prcs, "r+")
     print(io, cluster_cookie())
 
@@ -123,7 +125,7 @@ function launch_on_machine(manager::OARManager, machine::String, params::Dict, l
 end
 
 
-function manage(manager::ClusterManager, id::Integer, config::WorkerConfig, op::Symbol)
+function manage(manager::OARManager, id::Integer, config::WorkerConfig, op::Symbol)
     # Implemented by cluster managers. It is called on the master process, during a worker's lifetime, with appropriate op values:
     #   - with :register/:deregister when a worker is added / removed from the Julia worker pool.
     #   - with :interrupt when interrupt(workers) is called. The ClusterManager should signal the appropriate worker with an interrupt signal.
@@ -138,7 +140,7 @@ function manage(manager::ClusterManager, id::Integer, config::WorkerConfig, op::
     return
 end
 
-function kill(manager::ClusterManager, pid::Int, config::WorkerConfig)
+function kill(manager::OARManager, pid::Int, config::WorkerConfig)
     # Implemented by cluster managers. It is called on the master process, by rmprocs. It should cause the remote worker specified by pid to exit. 
     # kill(manager::ClusterManager.....) executes a remote exit() on pid.
 
