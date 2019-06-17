@@ -67,12 +67,13 @@ function launch(manager::OARManager, params::Dict, launched::Array, launch_ntfy:
 end
 
 function launch_on_machine(manager::OARManager, machine::String, params::Dict, launched::Array, launch_ntfy::Condition)
-    println("\n-- launch_on_machine()")
-    @show machine
-    @show params
-    @show launched
-    @show launch_ntfy
-    println("------")
+    printlev = 0
+    printlev > 0 && println("\n-- launch_on_machine()")
+    printlev > 0 && @show machine
+    printlev > 0 && @show params
+    printlev > 0 && @show launched
+    printlev > 0 && @show launch_ntfy
+    printlev > 0 && println("------")
     
     dir = params[:dir]
     exename = params[:exename]
@@ -109,7 +110,7 @@ function launch_on_machine(manager::OARManager, machine::String, params::Dict, l
     # detach launches the command in a new process group, allowing it to outlive
     # the initial julia process (Ctrl-C and teardown methods are handled through messages)
     # for the launched processes.
-    println("Launching full command:\n$cmd\n")
+    printlev > 0 && println("Launching full command:\n$cmd\n")
     io = open(detach(cmd), "r+")
     
     ## Second cookie passing option.
@@ -130,9 +131,9 @@ function launch_on_machine(manager::OARManager, machine::String, params::Dict, l
     push!(launched, wconfig)
     notify(launch_ntfy)
     
-    @show wconfig.ospid
-    @show launched
-    println("Notif sent, returning.\n")
+    printlev > 0 && @show wconfig.ospid
+    printlev > 0 && @show launched
+    printlev > 0 && println("Notif sent, returning.\n")
     return
 end
 
@@ -142,13 +143,14 @@ function manage(manager::OARManager, id::Integer, config::WorkerConfig, op::Symb
     #   - with :register/:deregister when a worker is added / removed from the Julia worker pool.
     #   - with :interrupt when interrupt(workers) is called. The ClusterManager should signal the appropriate worker with an interrupt signal.
     #   - with :finalize for cleanup purposes.
-    println("\nManage()")
-    @show manager
-    @show id
-    @show config
-    @show op
+    printlev = 0
+    printlev > 0 && println("\nManage()")
+    printlev > 0 && @show manager
+    printlev > 0 && @show id
+    printlev > 0 && @show config
+    printlev > 0 && @show op
 
-    @show config.ospid
+    printlev > 0 && @show config.ospid
 
     if op == :interrupt
 	    ospid = config.ospid
@@ -163,7 +165,7 @@ function manage(manager::OARManager, id::Integer, config::WorkerConfig, op::Symb
 	    end
     end
 
-    println("Returning")
+    printlev > 0 && println("Returning")
     return
 end
 
