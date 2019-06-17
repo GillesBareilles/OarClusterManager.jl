@@ -68,10 +68,10 @@ function launch_on_machine(manager::OARManager, machine::String, params::Dict, l
     exeflags = params[:exeflags]
 
 
-    exeflags = `$exeflags --worker`
+    exeflags = `$exeflags --worker=$(cluster_cookie())`
 
     host = machine
-    oarshflags = `$(get(params, :oarshflags, ''))`
+    # oarshflags = `$(get(params, :oarshflags, \`\`))`
 
     # Build up the ssh command
 
@@ -88,7 +88,7 @@ function launch_on_machine(manager::OARManager, machine::String, params::Dict, l
     cmd = `sh -l -c $cmds`
 
     # remote launch with ssh with given ssh flags / host / port information
-    cmd = `oarsh $oarshflags $host $(Base.shell_escape_posixly(cmd))`
+    cmd = `oarsh $host $(Base.shell_escape_posixly(cmd))`
 
     # launch the remote Julia process
 
@@ -98,28 +98,26 @@ function launch_on_machine(manager::OARManager, machine::String, params::Dict, l
     println("Launching full command:\n$cmd\n")
     prcs = detach(cmd)
     println("------------------------")
-    @show typeof(prcs), prcs
-    # @show getpid(prcs)
-    println("------------------------")
     io = open(prcs, "r+")
-    print(io, cluster_cookie())
+    # print(io, cluster_cookie())
 
     wconfig = WorkerConfig()
     wconfig.io = io.out
     wconfig.host = host
-    wconfig.tunnel = params[:tunnel]
-    wconfig.sshflags = oarshflags
+    # wconfig.tunnel = get(params, :tunnel, false)
+    # wconfig.sshflags = ``
     wconfig.exeflags = exeflags
     wconfig.exename = exename
     wconfig.count = 1
-    wconfig.max_parallel = params[:max_parallel]
-    wconfig.enable_threaded_blas = params[:enable_threaded_blas]
+    # wconfig.max_parallel = get(params, :max_parallel, 1)
+    # wconfig.enable_threaded_blas = get(params, :enable_threaded_blas, false)
 
 
     push!(launched, wconfig)
     notify(launch_ntfy)
     
     @show wconfig.ospid
+    @show launched
     println("Notif sent, returning.\n")
     return
 end
@@ -136,18 +134,23 @@ function manage(manager::OARManager, id::Integer, config::WorkerConfig, op::Symb
     @show config
     @show op
 
+    @show config.ospid
+
+    if op == :interrupt
+	    ospid = config.ospid
+	    if ospid !== nothing
+		    host = config.host
+		    if !success(`oarsh $host "kill -2 $ospid"`)
+			    @error "Error sending a Ctrl-C to julia worker $id on $host"
+		    end
+	    else
+		    # This state can happen immediately after an addprocs
+		    @error "Worker $id cannot be presently interrupted"
+	    end
+    end
+
     println("Returning")
     return
-end
-
-function kill(manager::OARManager, pid::Int, config::WorkerConfig)
-    # Implemented by cluster managers. It is called on the master process, by rmprocs. It should cause the remote worker specified by pid to exit. 
-    # kill(manager::ClusterManager.....) executes a remote exit() on pid.
-
-    println("\nkill()")
-    @show manager
-    @show pid
-    @show config
 end
 
 
