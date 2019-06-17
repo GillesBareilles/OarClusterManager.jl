@@ -71,7 +71,7 @@ function launch_on_machine(manager::OARManager, machine::String, params::Dict, l
     exeflags = `$exeflags --worker`
 
     host = machine
-    oarshflags = `$(params[:oarshflags])`
+    oarshflags = `$(get(params, :oarshflags, ""))`
 
     # Build up the ssh command
 
