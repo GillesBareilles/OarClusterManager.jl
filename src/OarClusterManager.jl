@@ -5,7 +5,7 @@ using Distributed, DelimitedFiles
 import Distributed: launch, manage, kill
 export launch, manage, kill
 
-export OARManager, addprocs_oar, get_remotehosts
+export OARManager, addprocs_oar, get_remotehosts, get_ncoresmaster
 
 struct OARManager <: ClusterManager
     machines::Dict
