@@ -26,11 +26,24 @@ end
 Return an array of all OAR reserved remote nodes, with multiplicity of number of available cores.
 """
 function get_remotehosts()
-    haskey(ENV, "OAR_NODEFILE")
+    @assert haskey(ENV, "OAR_NODEFILE")
 
     allhosts = vec(readdlm(ENV["OAR_NODEFILE"], String))
 
     return filter(x->x!==gethostname(), allhosts)
+end
+
+"""
+    get_ncoresmaster()
+
+Return the number of allocated cores on master.
+"""
+function get_ncoresmaster()
+    @assert haskey(ENV, "OAR_NODEFILE")
+
+    allhosts = vec(readdlm(ENV["OAR_NODEFILE"], String))
+
+    return count(x->x==gethostname(), allhosts)
 end
 
 function addprocs_oar(machines::AbstractVector; kwargs...)
